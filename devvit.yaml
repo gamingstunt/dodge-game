@@ -1,25 +1,20 @@
-name: gsid-game
+name: gsid-dodge
 friendlyName: 'GamingStunt: Impossible Dodge'
 version: 1.0.0
 description: >
-  A fast, minimal dodging game from GamingStunt that runs inside a Reddit
+  A polished neon arcade runner from GamingStunt that runs inside a Reddit
   interactive post.
 
-  Players move a blue square, dodge falling red obstacles, and chase a higher
-  survival time.
+  Players jump past incoming hazards, chase escalating speed tiers, and watch
+  the entire interface react as difficulty ramps up.
 
   The app uses only local bundled assets, requests no user permissions, and
   collects no personal data.
 
-main: main.tsx
-
 permissions: []
 
-blocks:
-  entry: main.tsx
-
 post:
-  dir: public
+  dir: dist/client
   entrypoints:
     default:
       entry: index.html

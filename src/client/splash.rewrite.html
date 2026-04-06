@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"
+  />
+  <title>Impossible Dodge Splash</title>
+  <meta
+    name="description"
+    content="Launch Impossible Dodge, a premium neon arcade runner by GamingStunt."
+  />
+  <link rel="preload" href="./images/game-logo.svg" as="image" type="image/svg+xml" />
+  <link rel="stylesheet" href="./gamestyles.css" />
+  <script type="module" src="./splash.ts"></script>
+</head>
+<body class="splash-page">
+  <div class="app-shell standalone-shell">
+    <div class="backdrop-orb orb-a" aria-hidden="true"></div>
+    <div class="backdrop-orb orb-b" aria-hidden="true"></div>
+    <div class="backdrop-orb orb-c" aria-hidden="true"></div>
+
+    <main class="splash-center" aria-labelledby="splashTitle">
+      <section class="splash-screen standalone-splash">
+        <div class="splash-noise" aria-hidden="true"></div>
+
+        <div class="particle-field" aria-hidden="true">
+          <span style="--x: 10%; --y: 18%; --size: 5px; --delay: -0.6s;"></span>
+          <span style="--x: 20%; --y: 72%; --size: 7px; --delay: -1.4s;"></span>
+          <span style="--x: 28%; --y: 28%; --size: 4px; --delay: -1.1s;"></span>
+          <span style="--x: 38%; --y: 80%; --size: 6px; --delay: -2.5s;"></span>
+          <span style="--x: 49%; --y: 14%; --size: 8px; --delay: -0.9s;"></span>
+          <span style="--x: 58%; --y: 68%; --size: 5px; --delay: -2.2s;"></span>
+          <span style="--x: 67%; --y: 20%; --size: 6px; --delay: -1.7s;"></span>
+          <span style="--x: 76%; --y: 76%; --size: 4px; --delay: -0.8s;"></span>
+          <span style="--x: 84%; --y: 34%; --size: 7px; --delay: -1.9s;"></span>
+          <span style="--x: 92%; --y: 70%; --size: 5px; --delay: -2.7s;"></span>
+        </div>
+
+        <div class="splash-card">
+          <div class="splash-brand">
+            <img src="./images/game-logo.svg" alt="Impossible Dodge logo" class="splash-logo" />
+            <p class="eyebrow">GamingStunt Presents</p>
+            <h1 id="splashTitle">Impossible Dodge</h1>
+          </div>
+
+          <p class="splash-copy">
+            Jump late, dodge clean, and survive a premium neon rush tuned for desktop, mobile notch devices, and Reddit WebView.
+          </p>
+
+          <div class="splash-features" aria-label="Game features">
+            <span class="feature-pill">One-touch controls</span>
+            <span class="feature-pill">Reactive sound</span>
+            <span class="feature-pill">Dynamic neon difficulty</span>
+          </div>
+
+          <div class="splash-actions">
+            <button class="tap-cta" id="launchGameButton" type="button">Tap to Play</button>
+            <p class="tap-status">Tap to Start</p>
+            <p class="tap-note">Play now - 200ms loading time, instant restart.</p>
+          </div>
+
+          <button class="visit-link" id="visitSiteButton" type="button">
+            Visit GamingStunt.com ->
+          </button>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

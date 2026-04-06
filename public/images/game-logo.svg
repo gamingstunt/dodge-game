@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">Impossible Dodge logo</title>
+  <desc id="desc">A neon hexagon badge with the letters ID in the center.</desc>
+  <defs>
+    <linearGradient id="outer" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#72d4ff"/>
+      <stop offset="52%" stop-color="#83f1ff"/>
+      <stop offset="100%" stop-color="#ff6fb9"/>
+    </linearGradient>
+    <linearGradient id="inner" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#09192f"/>
+      <stop offset="100%" stop-color="#112a52"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <path
+    d="M80 10 132 40v80l-52 30-52-30V40z"
+    fill="url(#outer)"
+    filter="url(#glow)"
+  />
+  <path
+    d="M80 24 120 47v66l-40 23-40-23V47z"
+    fill="url(#inner)"
+    stroke="rgba(255,255,255,0.3)"
+    stroke-width="2"
+  />
+  <path d="M48 55h14v49H48zM68 55h16c16 0 28 11 28 24s-12 25-28 25H68z" fill="#e8fbff"/>
+  <path d="M82 68h2c7 0 13 5 13 11s-6 11-13 11h-2z" fill="#70dcff"/>
+</svg>
