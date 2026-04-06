@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GamingStunt: Impossible Dodge</title>
+  <link rel="stylesheet" href="./gamestyles.css" />
+  <style>
+    .status-panel,
+    .game-panel {
+      padding: 16px;
+    }
+
+    .status-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .status-title {
+      display: grid;
+      gap: 4px;
+    }
+
+    .status-title h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      letter-spacing: -0.04em;
+    }
+
+    .status-title p {
+      margin: 0;
+      color: var(--text-muted);
+    }
+
+    .stats {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      min-width: 102px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--panel-border);
+      background: rgba(255, 255, 255, 0.92);
+      text-align: center;
+    }
+
+    .stat small {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .stat strong {
+      font-size: 1.2rem;
+    }
+
+    .game-panel {
+      position: relative;
+    }
+
+    .game-shell {
+      position: relative;
+      width: min(100%, 540px);
+      height: min(68vh, 620px);
+      margin: 0 auto;
+      overflow: hidden;
+      border-radius: 24px;
+      border: 1px solid var(--panel-border);
+      background:
+        linear-gradient(180deg, rgba(40, 120, 255, 0.06), transparent 28%),
+        repeating-linear-gradient(
+          180deg,
+          transparent 0,
+          transparent 30px,
+          rgba(20, 46, 81, 0.03) 31px,
+          rgba(20, 46, 81, 0.03) 32px
+        ),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(239, 245, 253, 0.96));
+      box-shadow: var(--shadow-lg);
+      touch-action: none;
+    }
+
+    .player,
+    .obstacle {
+      position: absolute;
+    }
+
+    .player {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #4a96ff, #1b67ee);
+      box-shadow: 0 12px 18px rgba(40, 120, 255, 0.3);
+    }
+
+    .obstacle {
+      border-radius: 12px;
+      background: linear-gradient(180deg, #ff7676, #ef3e3e);
+      box-shadow: 0 10px 16px rgba(239, 62, 62, 0.22);
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(244, 248, 252, 0.72);
+      backdrop-filter: blur(8px);
+      z-index: 5;
+      transition: opacity 0.18s ease;
+    }
+
+    .overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .overlay-card {
+      width: min(100%, 360px);
+      padding: 22px;
+      border-radius: 22px;
+      border: 1px solid var(--panel-border);
+      background: rgba(255, 255, 255, 0.97);
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .overlay-card h2 {
+      margin: 0 0 10px;
+      font-size: 1.7rem;
+      letter-spacing: -0.04em;
+    }
+
+    .overlay-card p {
+      margin: 8px 0 0;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .overlay-score {
+      color: var(--text-main) !important;
+      font-weight: 700;
+      font-size: 1.06rem;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font: inherit;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(29, 57, 97, 0.14);
+    }
+
+    .primary-btn {
+      background: var(--brand-blue);
+      color: #ffffff;
+    }
+
+    .secondary-btn {
+      background: #ffffff;
+      color: var(--text-main);
+      border: 1px solid rgba(20, 46, 81, 0.12);
+    }
+
+    .tip {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(21, 173, 112, 0.1);
+      color: #0f7a4f;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .controls {
+      display: none;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .control-btn {
+      min-width: 118px;
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid rgba(20, 46, 81, 0.12);
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    .meta-note {
+      margin-top: 12px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 700px) {
+      .controls {
+        display: flex;
+      }
+
+      .stat {
+        flex: 1 1 120px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .game-shell {
+        height: min(60vh, 520px);
+        border-radius: 20px;
+      }
+
+      .control-btn {
+        flex: 1 1 0;
+        min-width: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="panel brand-strip">
+      <div class="brand-lockup">
+        <img src="./logo.png" alt="GamingStunt logo" />
+        <div class="brand-copy">
+          <strong>Powered by GamingStunt.com</strong>
+          <span>Fast browser mini-games and arcade experiments.</span>
+        </div>
+      </div>
+      <a
+        class="brand-link"
+        href="https://gamingstunt.com"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Visit GamingStunt.com
+      </a>
+    </section>
+
+    <section class="panel status-panel">
+      <div class="status-title">
+        <h1>Impossible Dodge</h1>
+        <p>Dodge the red rain. Survive longer. Restart instantly.</p>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <small>Survival</small>
+          <strong id="scoreValue">0.0s</strong>
+        </div>
+        <div class="stat">
+          <small>Speed</small>
+          <strong id="speedValue">1x</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel game-panel">
+      <div class="game-shell" id="gameArea" aria-label="Impossible Dodge game area">
+        <div class="player" id="player" aria-label="Blue player square"></div>
+
+        <div class="overlay" id="overlay">
+          <div class="overlay-card">
+            <h2 id="overlayTitle">Ready?</h2>
+            <p id="overlayText">Use the left and right arrow keys to dodge every falling red obstacle.</p>
+            <p class="overlay-score" id="overlayScore">Survive as long as you can.</p>
+            <div class="actions">
+              <button class="primary-btn" id="startButton" type="button">Start Game</button>
+              <button class="secondary-btn" id="restartButton" type="button">Play Again</button>
+            </div>
+            <div class="tip">Tip: mobile players can hold the touch buttons below.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls" aria-label="Touch controls">
+        <button class="control-btn" id="leftButton" type="button">Hold Left</button>
+        <button class="control-btn" id="rightButton" type="button">Hold Right</button>
+      </div>
+
+      <div class="meta-note">Every 5 seconds the fall speed ramps up. One hit ends the run.</div>
+
+      <div class="footer-brand">
+        <img src="./logo.png" alt="GamingStunt logo" />
+        <span>Powered by GamingStunt.com</span>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Cache DOM nodes once so the frame loop stays lightweight.
+    const gameArea = document.getElementById("gameArea");
+    const playerEl = document.getElementById("player");
+    const overlayEl = document.getElementById("overlay");
+    const overlayTitleEl = document.getElementById("overlayTitle");
+    const overlayTextEl = document.getElementById("overlayText");
+    const overlayScoreEl = document.getElementById("overlayScore");
+    const scoreValueEl = document.getElementById("scoreValue");
+    const speedValueEl = document.getElementById("speedValue");
+    const startButton = document.getElementById("startButton");
+    const restartButton = document.getElementById("restartButton");
+    const leftButton = document.getElementById("leftButton");
+    const rightButton = document.getElementById("rightButton");
+
+    // Centralized state keeps the game easy to extend or retune later.
+    const state = {
+      running: false,
+      animationId: 0,
+      lastFrameTime: 0,
+      startTime: 0,
+      lastSpawnTime: 0,
+      lastRampTime: 0,
+      elapsedSeconds: 0,
+      spawnEveryMs: 540,
+      speedLevel: 1,
+      moveDirection: 0,
+      areaWidth: 0,
+      areaHeight: 0,
+      player: {
+        size: 34,
+        x: 0,
+        y: 0,
+        speed: 365
+      },
+      obstacles: []
+    };
+
+    function resizeGame() {
+      state.areaWidth = gameArea.clientWidth;
+      state.areaHeight = gameArea.clientHeight;
+      state.player.y = state.areaHeight - state.player.size - 16;
+      state.player.x = Math.max(0, Math.min(state.player.x, state.areaWidth - state.player.size));
+      drawPlayer();
+    }
+
+    function drawPlayer() {
+      playerEl.style.transform = `translate(${state.player.x}px, ${state.player.y}px)`;
+    }
+
+    function updateHud() {
+      scoreValueEl.textContent = `${state.elapsedSeconds.toFixed(1)}s`;
+      speedValueEl.textContent = `${state.speedLevel}x`;
+    }
+
+    function showOverlay(mode, score = 0) {
+      if (mode === "start") {
+        overlayTitleEl.textContent = "Ready?";
+        overlayTextEl.textContent = "Use the left and right arrow keys to dodge every falling red obstacle.";
+        overlayScoreEl.textContent = "Survive as long as you can.";
+      } else {
+        overlayTitleEl.textContent = "Game Over";
+        overlayTextEl.textContent = "Tap Play Again, press Enter, or tap the game area to jump right back in.";
+        overlayScoreEl.textContent = `Final survival time: ${score.toFixed(1)} seconds`;
+      }
+
+      overlayEl.classList.remove("hidden");
+    }
+
+    function hideOverlay() {
+      overlayEl.classList.add("hidden");
+    }
+
+    function clearObstacles() {
+      state.obstacles.forEach((obstacle) => obstacle.el.remove());
+      state.obstacles = [];
+    }
+
+    function createObstacle() {
+      const el = document.createElement("div");
+      el.className = "obstacle";
+
+      const width = 46 + Math.random() * 70;
+      const height = 14 + Math.random() * 20;
+      const x = Math.random() * Math.max(1, state.areaWidth - width);
+
+      const obstacle = {
+        el,
+        x,
+        y: -height - 10,
+        width,
+        height,
+        speed: 200 + state.speedLevel * 42 + Math.random() * 72
+      };
+
+      el.style.width = `${width}px`;
+      el.style.height = `${height}px`;
+      el.style.transform = `translate(${x}px, ${obstacle.y}px)`;
+      gameArea.appendChild(el);
+      state.obstacles.push(obstacle);
+    }
+
+    function updateObstacles(deltaSeconds) {
+      for (let i = state.obstacles.length - 1; i >= 0; i -= 1) {
+        const obstacle = state.obstacles[i];
+        obstacle.y += obstacle.speed * deltaSeconds;
+        obstacle.el.style.transform = `translate(${obstacle.x}px, ${obstacle.y}px)`;
+
+        if (obstacle.y > state.areaHeight + obstacle.height) {
+          obstacle.el.remove();
+          state.obstacles.splice(i, 1);
+        }
+      }
+    }
+
+    function overlaps(a, b) {
+      return (
+        a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y
+      );
+    }
+
+    function checkCollision() {
+      const playerBox = {
+        x: state.player.x,
+        y: state.player.y,
+        width: state.player.size,
+        height: state.player.size
+      };
+
+      return state.obstacles.some((obstacle) =>
+        overlaps(playerBox, {
+          x: obstacle.x,
+          y: obstacle.y,
+          width: obstacle.width,
+          height: obstacle.height
+        })
+      );
+    }
+
+    function rampDifficulty(now) {
+      if (now - state.lastRampTime >= 5000) {
+        state.speedLevel += 1;
+        state.lastRampTime = now;
+        state.spawnEveryMs = Math.max(180, state.spawnEveryMs - 35);
+      }
+    }
+
+    function updatePlayer(deltaSeconds) {
+      state.player.x += state.moveDirection * state.player.speed * deltaSeconds;
+      state.player.x = Math.max(0, Math.min(state.player.x, state.areaWidth - state.player.size));
+      drawPlayer();
+    }
+
+    function stopGame() {
+      state.running = false;
+      cancelAnimationFrame(state.animationId);
+      showOverlay("game-over", state.elapsedSeconds);
+    }
+
+    function gameLoop(timestamp) {
+      if (!state.running) {
+        return;
+      }
+
+      if (!state.lastFrameTime) {
+        state.lastFrameTime = timestamp;
+      }
+
+      const deltaSeconds = Math.min((timestamp - state.lastFrameTime) / 1000, 0.03);
+      state.lastFrameTime = timestamp;
+      state.elapsedSeconds = (timestamp - state.startTime) / 1000;
+
+      rampDifficulty(timestamp);
+
+      if (timestamp - state.lastSpawnTime >= state.spawnEveryMs) {
+        createObstacle();
+        state.lastSpawnTime = timestamp;
+      }
+
+      updatePlayer(deltaSeconds);
+      updateObstacles(deltaSeconds);
+      updateHud();
+
+      if (checkCollision()) {
+        stopGame();
+        return;
+      }
+
+      state.animationId = requestAnimationFrame(gameLoop);
+    }
+
+    function startGame() {
+      resizeGame();
+      clearObstacles();
+      state.running = true;
+      state.lastFrameTime = 0;
+      state.startTime = performance.now();
+      state.lastSpawnTime = state.startTime;
+      state.lastRampTime = state.startTime;
+      state.elapsedSeconds = 0;
+      state.spawnEveryMs = 540;
+      state.speedLevel = 1;
+      state.moveDirection = 0;
+      state.player.x = (state.areaWidth - state.player.size) / 2;
+
+      drawPlayer();
+      updateHud();
+      hideOverlay();
+      cancelAnimationFrame(state.animationId);
+      state.animationId = requestAnimationFrame(gameLoop);
+    }
+
+    function setDirection(direction) {
+      state.moveDirection = direction;
+    }
+
+    function handleKey(event, isDown) {
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        setDirection(isDown ? -1 : state.moveDirection === -1 ? 0 : state.moveDirection);
+      }
+
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        setDirection(isDown ? 1 : state.moveDirection === 1 ? 0 : state.moveDirection);
+      }
+
+      if ((event.key === "Enter" || event.key === " ") && !state.running && isDown) {
+        event.preventDefault();
+        startGame();
+      }
+    }
+
+    function bindHoldButton(button, direction) {
+      const start = (event) => {
+        event.preventDefault();
+        setDirection(direction);
+      };
+
+      const stop = (event) => {
+        event.preventDefault();
+        if (state.moveDirection === direction) {
+          setDirection(0);
+        }
+      };
+
+      button.addEventListener("pointerdown", start);
+      button.addEventListener("pointerup", stop);
+      button.addEventListener("pointerleave", stop);
+      button.addEventListener("pointercancel", stop);
+    }
+
+    startButton.addEventListener("click", startGame);
+    restartButton.addEventListener("click", startGame);
+
+    // After a loss, tapping the dimmed overlay restarts quickly.
+    overlayEl.addEventListener("pointerdown", (event) => {
+      if (!state.running && event.target === overlayEl) {
+        startGame();
+      }
+    });
+
+    bindHoldButton(leftButton, -1);
+    bindHoldButton(rightButton, 1);
+
+    window.addEventListener("keydown", (event) => handleKey(event, true));
+    window.addEventListener("keyup", (event) => handleKey(event, false));
+    window.addEventListener("resize", resizeGame);
+
+    resizeGame();
+    showOverlay("start");
+    updateHud();
+  </script>
+</body>
+</html>

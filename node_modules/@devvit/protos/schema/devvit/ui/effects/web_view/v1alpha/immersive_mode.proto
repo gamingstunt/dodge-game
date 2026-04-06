@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package devvit.ui.effects.web_view.v1alpha;
+
+option go_package = "github.snooguts.net/reddit/reddit-devplatform-monorepo/go-common/generated/protos/types/devvit/ui/effects/web_view/v1alpha";
+option java_package = "com.reddit.devvit.ui.effects.web_view.v1alpha";
+
+message WebViewImmersiveModeEffect {
+  WebViewImmersiveMode immersive_mode = 1;
+  // A complete entrypoint URL, assumed to be a `devvit.json` entrypoint, to be
+  // guarded by the site CSP. When specified, clients must unconditional load or
+  // reload the target web view. When unspecified, clients must never reload the
+  // target web view. See also `SplashPostData.entry`.
+  optional string entry_url = 2;
+}
+
+// How a Devvit app is presented.
+enum WebViewImmersiveMode {
+  UNSPECIFIED = 0;
+  // Conventional post presentation. May appear adjacent other posts in a feed
+  // or with comments.
+  INLINE_MODE = 1;
+  // Large modal expanded presentation. Appears popped out from the rest of the
+  // Reddit experience which is disabled.
+  IMMERSIVE_MODE = 2;
+}

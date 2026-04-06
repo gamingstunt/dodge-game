@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package devvit.ui.effects.web_view.v1alpha;
+
+import "devvit/ui/effect_types/v1alpha/app_permission.proto";
+import "devvit/ui/effect_types/v1alpha/create_order.proto";
+import "devvit/ui/effect_types/v1alpha/navigate_to_url.proto";
+import "devvit/ui/effect_types/v1alpha/realtime_subscription.proto";
+import "devvit/ui/effect_types/v1alpha/show_form.proto";
+import "devvit/ui/effect_types/v1alpha/show_toast.proto";
+import "devvit/ui/effect_types/v1alpha/update_request_context.proto";
+import "devvit/ui/effects/web_view/v1alpha/immersive_mode.proto";
+import "devvit/ui/effects/web_view/v1alpha/screenshot.proto";
+import "devvit/ui/effects/web_view/v1alpha/share.proto";
+import "devvit/ui/effects/web_view/v1alpha/telemetry.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "github.snooguts.net/reddit/reddit-devplatform-monorepo/go-common/generated/protos/types/devvit/ui/effects/web_view/v1alpha";
+option java_package = "com.reddit.devvit.ui.effects.web_view.v1alpha";
+
+// Blocks only.
+enum WebViewInternalMessageScope {
+  option deprecated = true;
+
+  // Message is intended for the client only
+  CLIENT = 0;
+}
+
+// `devvit-internal` message from web view to client via postMessage(). Used
+// often for sending effects from the iframe.
+message WebViewInternalMessage {
+  // type: devvit-internal
+  string type = 1;
+  // Scope of the message, used to determine where the message should be sent.
+  // Blocks only.
+  WebViewInternalMessageScope scope = 2 [deprecated = true];
+
+  oneof options {
+    // WebViewTelemetryClickEffect or WebViewTelemetryLoadedEffect. Use
+    // `telemetry` instead.
+    google.protobuf.Struct analytics = 3 [deprecated = true];
+    // Blocks only.
+    // @deprecated Use effect_type instead
+    google.protobuf.Struct effect = 4 [deprecated = true];
+    // Blocks only.
+    // @deprecated Use effect_type instead
+    devvit.ui.effect_types.v1alpha.RealtimeSubscriptionsEffect realtime_effect = 6 [deprecated = true];
+  }
+
+  oneof effect_type {
+    WebViewImmersiveModeEffect immersive_mode = 7;
+    WebViewShareEffect share = 8;
+    devvit.ui.effect_types.v1alpha.ShowToastEffect show_toast = 9;
+    devvit.ui.effect_types.v1alpha.NavigateToUrlEffect navigate_to_url = 10;
+    devvit.ui.effect_types.v1alpha.ShowFormEffect show_form = 11;
+    devvit.ui.effect_types.v1alpha.CreateOrderEffect create_order = 12;
+    devvit.ui.effect_types.v1alpha.RealtimeSubscriptionsEffect realtime = 13;
+    devvit.ui.effect_types.v1alpha.CanRunAsUserEffect can_run_as_user = 14;
+    WebViewTelemetryEffect telemetry = 15;
+    devvit.ui.effect_types.v1alpha.UpdateRequestContextEffect update_request_context = 16;
+    WebViewScreenshotResponseEffect screenshot = 17;
+  }
+
+  // Identifier for correlating effect responses to effect requests.
+  optional string id = 5;
+}
+
+// Each message described below here will be converted to a Struct and sent to a WebView wrapped in a WebViewPostMessage:
+//  Example, sending WebViewAppMessage:
+//  {
+//    type: 'devvit-message',
+//    data: {
+//      message: 'Foo'
+//    }
+//  }
+
+// Generic structure of messages sent via postMessage from web view block.
+// Blocks only.
+message WebViewPostMessage {
+  option deprecated = true;
+
+  // See comments for each message
+  string type = 1;
+  // One of the following messages converted to a Struct
+  google.protobuf.Struct data = 2;
+}
+
+// Arbitrary `devvit-message` message, sent by block app to a web view block.
+// Blocks only.
+message WebViewAppMessage {
+  option deprecated = true;
+
+  // Any serializable value given to postMessage in a WebView
+  // Blocks only.
+  // @deprecated Use json_string instead
+  google.protobuf.Value message = 1 [deprecated = true];
+
+  // JSON string payload
+  optional string json_string = 2;
+}
+
+// `devvit-state` message. Used to pass stateful data into a web view. Blocks
+// only.
+message WebViewStateMessage {
+  option deprecated = true;
+
+  google.protobuf.Struct state = 1;
+}
+
+// Message wrapper for messages sent by block app to a web view block. Composed
+// by `WebViewEffect`. Blocks only.
+message WebViewPostMessageEffect {
+  option deprecated = true;
+
+  // ID of the WebView block
+  string web_view_id = 1;
+
+  // Message to send to the WebView
+  oneof message {
+    WebViewAppMessage app = 2;
+    WebViewStateMessage state = 3;
+    // WebViewUIEventMessage event = 4;
+    // WebViewUIEnvironmentMessage environment = 5;
+  }
+}

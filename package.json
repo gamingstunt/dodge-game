@@ -1,0 +1,25 @@
+{
+  "name": "gsid-game",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GamingStunt: Impossible Dodge Devvit interactive post with an embedded HTML5 dodge game.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "devvit playtest",
+    "playtest": "devvit playtest",
+    "upload": "devvit upload",
+    "publish": "devvit publish",
+    "login": "devvit login"
+  },
+  "dependencies": {
+    "@devvit/public-api": "0.12.17"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.2",
+    "typescript": "5.8.3"
+  }
+}

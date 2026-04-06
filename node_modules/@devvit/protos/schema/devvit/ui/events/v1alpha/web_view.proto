@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package devvit.ui.events.v1alpha;
+
+import "devvit/ui/effect_types/v1alpha/app_permission.proto";
+import "devvit/ui/effect_types/v1alpha/create_order.proto";
+import "devvit/ui/effect_types/v1alpha/show_form.proto";
+import "devvit/ui/effect_types/v1alpha/update_request_context.proto";
+import "devvit/ui/effects/v1alpha/realtime_subscriptions.proto";
+import "devvit/ui/effects/web_view/v1alpha/immersive_mode.proto";
+import "devvit/ui/effects/web_view/v1alpha/screenshot.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "github.snooguts.net/reddit/reddit-devplatform-monorepo/go-common/generated/protos/types/devvit/ui/events/v1alpha";
+option java_package = "com.reddit.devvit.ui.events.v1alpha";
+
+// Blocks only.
+enum WebViewVisibility {
+  option deprecated = true;
+  WEBVIEW_VISIBLE = 0;
+  WEBVIEW_HIDDEN = 1;
+}
+
+// Fired when the content of a WebView within a `<webview>` block calls
+// `window.parent.postMessage()`. Blocks only.
+message WebViewPostMessageEvent {
+  option deprecated = true;
+
+  // Can be a Struct or a scalar value since postMessage doesn't restrict the
+  // type of 'message'.
+  // @deprecated Use json_string instead
+  google.protobuf.Value message = 1;
+
+  // JSON string payload
+  string json_string = 2;
+}
+
+// Fired from the client when the visibility of a fullscreen WebView changes.
+// Blocks only.
+message WebViewFullScreenEvent {
+  option deprecated = true;
+  WebViewVisibility visibility = 1;
+}
+
+// Eg, the user initiates a request to mount the Blocks
+// view (`useWebView().mount()`), the web view is shown in the client, and the
+// client posts an event to Blocks that the web view is visible. Blocks only.
+message WebViewEvent {
+  option deprecated = true;
+  oneof payload {
+    WebViewPostMessageEvent post_message = 1;
+    WebViewFullScreenEvent full_screen = 2;
+  }
+}
+
+// Event dispatched from the client to the web view when the user initiates
+// expanded or inline mode.
+message WebViewImmersiveModeChangedEvent {
+  devvit.ui.effects.web_view.v1alpha.WebViewImmersiveMode immersive_mode = 1;
+}
+
+// This is the message sent from the client to the web view via `postMessage()`
+// for all Webbit events. For web, this is the sender's type. Events are
+// initiated by the user as opposed to effects which are side-effects of running
+// the web view. Additionally, some effects have responses that may be events.
+message WebViewInternalEventMessage {
+  // ID of the event message, matches the id of the
+  // `WebViewInternalMessage` effect that triggered it. Empty when event is not
+  // an effect response.
+  string id = 1;
+  oneof data {
+    devvit.ui.effect_types.v1alpha.FormCanceledEvent form_canceled = 2;
+    devvit.ui.effect_types.v1alpha.FormSubmittedEvent form_submitted = 3;
+    devvit.ui.effects.v1alpha.RealtimeSubscriptionEvent realtime_event = 4;
+    WebViewImmersiveModeChangedEvent immersive_mode_event = 5;
+    devvit.ui.effect_types.v1alpha.ConsentStatusEvent consent_status = 7;
+    devvit.ui.effect_types.v1alpha.OrderResultEvent order_result = 8;
+    devvit.ui.effect_types.v1alpha.UpdateRequestContextEvent update_request_context = 9;
+    devvit.ui.effects.web_view.v1alpha.WebViewScreenshotRequestEvent screenshot_request = 10;
+  }
+}
+
+// Message sent from the client to the web view via `postMessage()`. The
+// structure must match `MessageEvent`. Web uses the actual `MessageEvent` from
+// the standard web API. Only the native clients use `WebViewMessageEvent` but
+// all clients use `MessageData`.
+//
+// "Event" refers to a `MessageEvent`, not event as in event vs effect. The
+// data of `WebViewMessageEvent` could be anything.
+//
+// See https://developer.mozilla.org/en-US/docs/Web/API/MessageEvent.
+message WebViewMessageEvent {
+  // For web view's, this is the type of MessageEvent.data.
+  message MessageData {
+    string type = 1; // 'devvit-message'
+    WebViewInternalEventMessage data = 2; // event type
+  }
+
+  MessageData data = 1; // event payload
+}

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package devvit.ui.effects.web_view.v1alpha;
+
+option go_package = "github.snooguts.net/reddit/reddit-devplatform-monorepo/go-common/generated/protos/types/devvit/ui/effects/web_view/v1alpha";
+option java_package = "com.reddit.devvit.ui.effects.web_view.v1alpha";
+
+// Event sent from the client to the web view to request a screenshot of the current iframe content.
+message WebViewScreenshotRequestEvent {}
+
+// Effect returned when a screenshot has been successfully captured
+// or when an error occurs during capture
+message WebViewScreenshotResponseEffect {
+  // Base64-encoded image data URL (e.g., "data:image/jpeg;base64,...")
+  optional string data_url = 1;
+
+  // Error message if screenshot capture failed
+  optional string error = 2;
+}

@@ -1,0 +1,43 @@
+import { Devvit } from '@devvit/public-api';
+
+export const NeonSplash = ({ ctx }) => {
+  const createPost = async () => {
+    await ctx.reddit.submitCustomPost({
+      subredditName: ctx.subredditName!,
+      title: '🎮 Impossible Dodge — Neon Challenge (Tap To Play)',
+      entry: 'default',
+    });
+  };
+
+  return (
+    <vstack
+      alignment="center"
+      padding="large"
+      gap="large"
+      backgroundColor="#0a0f1f"
+      borderRadius="medium"
+    >
+      <text size="xxlarge" weight="bold" color="#3affff">
+        ⚡ IMPOSSIBLE DODGE ⚡
+      </text>
+
+      <text size="medium" color="#9ad9ff">
+        A fast neon survival game by GamingStunt
+      </text>
+
+      <button
+        appearance="primary"
+        size="large"
+        textColor="#000000"
+        backgroundColor="#00f2ff"
+        onPress={createPost}
+      >
+        🚀 PLAY NOW (NEON MODE)
+      </button>
+
+      <text size="small" color="#6eaaff">
+        Made with ❤️ by GamingStunt
+      </text>
+    </vstack>
+  );
+};

@@ -1,0 +1,180 @@
+syntax = "proto3";
+
+package devvit.ui.effects.web_view.v1alpha;
+
+import "devvit/ui/effects/web_view/v1alpha/immersive_mode.proto";
+import "google/protobuf/struct.proto";
+import "reddit/devvit/app_permission/v1/app_permission.proto";
+import "reddit/devvit/common/v1/app.proto";
+
+option go_package = "github.snooguts.net/reddit/reddit-devplatform-monorepo/go-common/generated/protos/types/devvit/ui/effects/web_view/v1alpha";
+option java_package = "com.reddit.devvit.ui.effects.web_view.v1alpha";
+
+// The user client hosting the web view.
+enum Client {
+  CLIENT_UNSPECIFIED = 0;
+  ANDROID = 1;
+  IOS = 2;
+  SHREDDIT = 3;
+}
+
+// Initialization data sent from the client (Shreddit, Android, iOS) to the
+// web view.
+message BridgeContext {
+  DevvitPostData post_data = 1;
+  ShareParam share_param = 2;
+  WebViewContext web_view_context = 3 [deprecated = true];
+  // Signed WebbitToken user JWT (header, payload, signature base64 strings
+  // separated by dots). Users shouldn't share their JWTs with others, but
+  // perfectly fine for a given user to see. Named WebbitToken to match GQL's
+  // definition. Eg:
+  //   eyJhbGciOiJIUzI1NiIsImtpZCI6ImVlYzJjOWUzLWM0NTctNTM3Zi05NThmLTI5MDg3N2U4NjNlYyIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkZXZ2aXQtZ2F0ZXdheS5yZWRkaXQuY29tIiwiYXVkIjpbIjhlMGUwZWI3LTc0NzgtNGVmMS1hNGZmLTk5NTlmMTkzZmNkMC0wLTAtOS13ZWJ2aWV3LmRldnZpdC5uZXQiXSwiZXhwIjoxNzUzMzcxODU2LCJuYmYiOjE3NTMyODU0NTYsImlhdCI6MTc1MzI4NTQ1NiwianRpIjoiYTA5NWMyOTktOWJkNS00MGUzLWEyYTEtYzhkYTBiMDc0ZjRhIiwiZGV2dml0LXBvc3QtaWQiOiJ0M18xbTdjcHZxIiwiZGV2dml0LXBvc3QtZGF0YSI6e30sImRldnZpdC11c2VyLWlkIjoidDJfazZsZGJqaDMiLCJkZXZ2aXQtaW5zdGFsbGF0aW9uIjoiOGUwZTBlYjctNzQ3OC00ZWYxLWE0ZmYtOTk1OWYxOTNmY2QwIn0.6M4NKCUsB4kWhZmslE909IL-hf2FAVMrkjB-peaHLHc
+  string webbit_token = 4 [deprecated = true];
+  // Untrusted unknown debug user data passed in the case-insensitive
+  // `devvitdebug` query param of the hosting window
+  // (eg, `reddit.com?devvitdebug=...`).
+  string devvit_debug = 5;
+  Client client = 6;
+  oneof client_version {
+    NativeClientVersion native_version = 7;
+    // `@devvit/protos` version used in Shreddit.
+    SemVer shreddit_version = 8;
+  }
+  // Data required for the "run as user" feature.
+  AppPermissionState app_permission_state = 9;
+  optional WebViewImmersiveMode view_mode = 10;
+  reserved 11;
+  reserved "entrypoints";
+  // Signed `RequestContext` JWT.
+  optional string signed_request_context = 12;
+  // Opaque `WebViewClientData`.
+  optional google.protobuf.Struct web_view_client_data = 13;
+  // Earliest moment the app started loading in fractional UTC milliseconds.
+  optional double start_time = 14;
+}
+
+/** Inline height of post. */
+enum Height {
+  option deprecated = true;
+  HEIGHT_UNSPECIFIED = 0;
+  REGULAR = 1;
+  TALL = 2;
+}
+
+// Android or iOS client version. Unavailable for web clients.
+message NativeClientVersion {
+  // Year built. Eg, `2025`.
+  int32 yyyy = 1;
+  // Release number starting from 1 as the first release in January. Eg, `1`.
+  int32 release = 2;
+  // Release attempt. Eg, `0`.
+  int32 attempt = 3;
+  // Build number. Eg, `2417036`.
+  int32 number = 4;
+}
+
+// Semantic version major, minor, and patch number.
+message SemVer {
+  // Major version. Eg, `1`.
+  int32 major = 1;
+  // Minor version. Eg, `2`.
+  int32 minor = 2;
+  // Patch version. Eg, `3`.
+  int32 patch = 3;
+  // Original version string.
+  string version = 4;
+}
+
+// Data passed opaquely as a `google.protobuf.Struct` in the `DevvitPost`
+// GraphQL response. This allows the backend and web view code to update without
+// client changes.
+message WebViewClientData {
+  .reddit.devvit.common.v1.AppConfig app_config = 1;
+}
+
+message WebViewContext {
+  option deprecated = true;
+  // Subreddit Thing ID (t5)
+  string subreddit_id = 1;
+  string subreddit_name = 2;
+  // User Thing ID (t2)
+  string user_id = 3;
+  string app_name = 4;
+  string app_version = 5;
+  // Post Thing ID (t3)
+  string post_id = 6;
+}
+
+// DevvitPostData contains all post data set on the custom post, including
+// internal data and developer-provided data. It originates from GraphQL as a
+// plain JSON string. This string **must** be ASCII to pass as metadata. See
+// asciiSafePostData().
+message DevvitPostData {
+  SplashPostData splash = 3;
+  // Developer-provided data on the Post, in JSON format. This is what developers set via submitPost({ postData: {...} }). Eg: { "riddle": "hello world" }
+  google.protobuf.Struct developer_data = 2;
+}
+
+// App deep link. Passed in case-insensitive `devvitshare` query param of the
+// hosting window (eg, `reddit.com?devvitshare=...`) as user data.
+//
+//   url.searchParams.set(
+//     'devvitshare',
+//     JSON.stringify({params: {foo: 'bar'}, path: '/a/b/c/index.html', hash: '#abc', userData: 'abc'} satisfies ShareParam) // Encodes.
+//   )
+//   const shareParam: ShareParam | undefined = JSON.parse(
+//     url.searchParams.get('devvitshare') || '{}' // Decodes.
+//   ) ?? undefined
+//   ...Verify user data...
+//
+// Links are always assumed to use PDP.
+//
+// Emitted as WebViewShareEffect.
+message ShareParam {
+  // Everything after and including the first /. Aligns to
+  // https://developer.mozilla.org/en-US/docs/Web/API/URL/pathname.
+  string path = 1 [deprecated = true];
+  // URL query parameters (key-value).
+  map<string, string> params = 2 [deprecated = true];
+  // Everything after and including the first #. Aligns to
+  // https://developer.mozilla.org/en-US/docs/Web/API/URL/hash.
+  string hash = 3 [deprecated = true];
+  // User data as a string. Eg, `'abc'` or `'{"abc":"123"}'`.
+  optional string user_data = 4;
+}
+
+// Splash screen post data. Everything needed to render a `Splash` screen
+// component. The below are recorded at post creation time to allow posts to
+// differ. Defaults are not recorded for anything but the fields needed to
+// render the `Loading` component to always prefer the current entry default
+// values when unspecified for everything that can be deferred.
+message SplashPostData {
+  // Application name. Eg, `'Comment Mop'`.
+  optional string app_display_name = 1;
+  // Icon URL relative media directory or data URI. Eg, `'icon.png'`.
+  optional string app_icon_uri = 2;
+  // Media directory relative background image URL or data URI. Eg,
+  // `'background.png'`.
+  optional string background_uri = 3;
+  // The text of the web view launch button.
+  optional string button_label = 4;
+  // Secondary text describing the post.
+  optional string description = 5;
+  // The `devvit.json` `post.entrypoints` key. If not provided, defaults to
+  // `defaultPostEntry`. See also `WebViewImmersiveModeEffect.entry_url`.
+  optional string entry = 9;
+  // Large text naming the post. Eg. `'What is this?'`.
+  optional string title = 7;
+  reserved 6, 8;
+  reserved "entry_uri", "height";
+}
+
+// Data required for the "run as user" feature.
+message AppPermissionState {
+  // If the app has been granted or revoked all the scopes.
+  .reddit.devvit.app_permission.v1.ConsentStatus consent_status = 1;
+  // Scopes that has been granted or revoked by the user.
+  repeated .reddit.devvit.app_permission.v1.Scope granted_scopes = 2;
+  // Scopes that the app has requested.
+  repeated .reddit.devvit.app_permission.v1.Scope requested_scopes = 3;
+}

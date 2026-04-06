@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package devvit.ui.effect_types.v1alpha;
+
+option go_package = "github.snooguts.net/reddit/reddit-devplatform-monorepo/go-common/generated/protos/types/devvit/ui/effect_types/v1alpha";
+option java_package = "com.reddit.devvit.ui.effect_types.v1alpha";
+
+// This effect is used to request an updated signed request context
+message UpdateRequestContextEffect {}
+
+// This event is emitted with the updated signed request context
+message UpdateRequestContextEvent {
+  // The updated signed request context
+  // mapped to https://sourcegraph.build.ue1.snooguts.net/github.snooguts.net/reddit/devplatform-api/-/blob/api/proto/reddit/devvit/post/v1/post.proto?L55
+  string signed_request_context = 1;
+}

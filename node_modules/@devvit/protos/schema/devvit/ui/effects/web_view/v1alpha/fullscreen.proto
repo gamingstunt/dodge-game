@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package devvit.ui.effects.web_view.v1alpha;
+
+option go_package = "github.snooguts.net/reddit/reddit-devplatform-monorepo/go-common/generated/protos/types/devvit/ui/effects/web_view/v1alpha";
+option java_package = "com.reddit.devvit.ui.effects.web_view.v1alpha";
+
+// Sent to launch a fullscreen WebView experience
+message WebViewFullScreenVisibilityEffect {
+  // True if app wants to show the WebView, false if the app wants to close an open WebView
+  bool show = 1;
+
+  // URL to load in the fullscreen WebView
+  //
+  // For historical reasons, this value is `<app ID>/<asset path>`,
+  // e.g. "fd23937c-2891-44ed-a66c-5277265cfd54/images/example.png", but the asset should
+  // be loaded directly from the webview domain at the asset path (e.g. "GET /images/example.png").
+  string url = 2;
+
+  // ID to associate with the newly created WebView. Although only one can be visible at a time,
+  // it's possible for an app to define multiple fullscreen WebViews to launch at various times.
+  // In order to route messages back and forth between the correct WebView on the client and the
+  // associated callbacks within the app we need a stable identifier.
+  string id = 3;
+}

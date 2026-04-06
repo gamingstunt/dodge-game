@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package reddit.devvit.common.v1;
+
+option go_package = "github.snooguts.net/reddit/devplatform-api/go/grpc/devvit/common/v1;devvit_common";
+
+message ErrorMessage {
+  string message = 1;
+}

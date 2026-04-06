@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package devvit.runtime;
+
+option go_package = "github.snooguts.net/reddit/reddit-devplatform-monorepo/go-common/generated/protos/types/devvit/runtime";
+option java_package = "com.reddit.devvit.runtime";
+
+message SetDeploymentRequest {
+  string installation_id = 1;
+  // The source code to deploy. Currently, we only support deploying a linked bundle from cloud storage,
+  // but in the future we may support other sources like a Docker image.
+  oneof source {
+    // A URL to a linked bundle to deploy. This is typically an S3 or GCS URL.
+    string linked_bundle_url = 2;
+  }
+}
+
+message SetDeploymentResponse {
+  // Clients can access the deployed application at this URL.
+  string url = 1;
+}
+
+message DeleteDeploymentRequest {
+  string installation_id = 1;
+}
+
+message DeleteDeploymentResponse {}
+
+// Orchestrator service is for preparing a Devvit app to serve requests for a given installation.
+// Orchestrators should be one-to-one with hosting environments, and should manage what apps exist
+// in that environment.
+service Orchestrator {
+  rpc SetDeployment(SetDeploymentRequest) returns (SetDeploymentResponse);
+  rpc DeleteDeployment(DeleteDeploymentRequest) returns (DeleteDeploymentResponse);
+}

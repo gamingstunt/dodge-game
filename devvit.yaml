@@ -1,0 +1,26 @@
+name: gsid-game
+friendlyName: 'GamingStunt: Impossible Dodge'
+version: 1.0.0
+description: >
+  A fast, minimal dodging game from GamingStunt that runs inside a Reddit
+  interactive post.
+
+  Players move a blue square, dodge falling red obstacles, and chase a higher
+  survival time.
+
+  The app uses only local bundled assets, requests no user permissions, and
+  collects no personal data.
+
+main: main.tsx
+
+permissions: []
+
+blocks:
+  entry: main.tsx
+
+post:
+  dir: public
+  entrypoints:
+    default:
+      entry: index.html
+      height: tall

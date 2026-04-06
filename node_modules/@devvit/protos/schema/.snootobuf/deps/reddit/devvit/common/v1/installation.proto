@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package reddit.devvit.common.v1;
+
+import "reddit/devvit/common/v1/app.proto";
+
+option go_package = "github.snooguts.net/reddit/devplatform-api/go/grpc/devvit/common/v1;devvit_common";
+
+message Installation {
+  // Installation unique identifier, eg 'b4d7a045-5771-410a-b8ca-bd21eb869578'
+  string installation_id = 1;
+  // The installation's public api version, eg '0.10.24' or '0.11.0-next-2024-08-28-c7054fdb3.0'
+  string public_api_version = 2;
+  // The name of the host running this installation, eg '7c65897c-d3d1-4070-9db3-25402e093d37.sf-local-app.main.devvit-gateway.reddit.com'
+  string hostname = 3;
+  // Specific information about the app in this installation
+  App app = 4;
+  // fully-qualified URL to fetch the code bundle for this installation, e.g.
+  // 'https://devvit-gateway.reddit.com/bundles/b4d7a045-5771-410a-b8ca-bd21eb869578/main/0.0.30'
+  string bundle_url = 5;
+  // The location of the installation, which is a t5_ subreddit id, eg 't5_bogzxg'
+  string location = 6;
+  // A `RenderVersion` value. An integer is used over an enum to avoid GraphQL
+  // implementation for new values.
+  optional int32 render_version = 7;
+}
+
+// App render expectation.
+enum RenderVersion {
+  RENDER_VERSION_UNSPECIFIED = 0;
+  // `devvit.yaml` Blocks app.
+  NO_DEVVIT_JSON = 0x100;
+  // Classic or hybrid Webbit app.
+  WEBBIT_BLOCKS = 0x200;
+  WEBBIT_PURE_NO_ENTRYPOINT = 0x400;
+  // Entry exists but isn't explicitly inline.
+  WEBBIT_PURE_NO_INLINE = 0x410;
+  // Entry exists and is explicitly inline.
+  WEBBIT_PURE_INLINE = 0x420;
+}

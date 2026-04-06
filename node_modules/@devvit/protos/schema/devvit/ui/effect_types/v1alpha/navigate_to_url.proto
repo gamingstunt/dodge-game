@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package devvit.ui.effect_types.v1alpha;
+
+option go_package = "github.snooguts.net/reddit/reddit-devplatform-monorepo/go-common/generated/protos/types/devvit/ui/effect_types/v1alpha";
+option java_package = "com.reddit.devvit.ui.effect_types.v1alpha";
+
+// Request the client to navigate to a specific url
+message NavigateToUrlEffect {
+  string url = 1;
+  optional string target = 2;
+}
